@@ -14,5 +14,13 @@ api.interceptors.request.use((config) => {
     config.headers.Authorization = `Bearer ${token}`;
   }
 
+  // Prevent browsers/proxies from serving stale GET responses.
+  if (config.method?.toLowerCase() === "get") {
+    config.params = {
+      ...(config.params || {}),
+      _t: Date.now(),
+    };
+  }
+
   return config;
 });
