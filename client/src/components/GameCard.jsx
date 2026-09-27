@@ -3,6 +3,12 @@ import { Heart, ShoppingCart, Star } from "lucide-react";
 import { api } from "../services/api";
 import { useState } from "react";
 
+function getFreshImageUrl(url, updatedAt) {
+  if (!url) return "";
+  const separator = url.includes("?") ? "&" : "?";
+  return `${url}${separator}v=${encodeURIComponent(updatedAt || Date.now())}`;
+}
+
 export default function GameCard({ game, onCart }) {
   const [liked, setLiked] = useState(false);
 
@@ -36,7 +42,7 @@ export default function GameCard({ game, onCart }) {
       <Link to={`/game/${game._id}`}>
         <div className="relative h-48 overflow-hidden">
           <img
-            src={game.image}
+            src={getFreshImageUrl(game.image, game.updatedAt)}
             alt={game.title}
             className={`h-full w-full object-cover transition duration-500 group-hover:scale-110 ${
               outOfStock ? "grayscale opacity-60" : ""
