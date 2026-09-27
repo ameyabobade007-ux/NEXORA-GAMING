@@ -1,6 +1,11 @@
 import Game from "../models/Game.js";
 import User from "../models/User.js";
 export async function list(req, res) {
+  // Game data changes from the admin panel must be visible immediately.
+  res.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  res.set("Pragma", "no-cache");
+  res.set("Expires", "0");
+
   const q = req.query.q;
   const filter = q ? { title: { $regex: q, $options: "i" } } : {};
   const games = await Game.find(filter).sort({ featured: -1, createdAt: -1 });
