@@ -1,9 +1,11 @@
 import "dotenv/config";
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
+
 import { connectDB } from "../config/db.js";
 import User from "../models/User.js";
 import Game from "../models/Game.js";
+
 const games = [
   [
     "Cyberpunk 2077",
@@ -62,11 +64,24 @@ const games = [
     "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80",
   ],
 ];
+
+const adminEmail = process.env.ADMIN_EMAIL;
+const adminPassword = process.env.ADMIN_PASSWORD;
+
+if (!adminEmail || !adminPassword) {
+  throw new Error(
+    "ADMIN_EMAIL and ADMIN_PASSWORD must be defined in server/.env",
+  );
+}
+
 await connectDB();
+
 await Game.deleteMany({});
 await User.deleteMany({});
+
 for (let i = 0; i < games.length; i++) {
   const [title, genre, price, stock, image] = games[i];
+
   await Game.create({
     title,
     slug: title.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
@@ -82,7 +97,12 @@ for (let i = 0; i < games.length; i++) {
     developer: "NEXORA Studios",
     publisher: "NEXORA Publishing",
     description: `Experience ${title}, a premium ${genre} experience built for players who want cinematic gameplay and unforgettable worlds.`,
-    minimum: { cpu: "Intel Core i5", gpu: "GTX 1060", ram: 8, storage: 70 },
+    minimum: {
+      cpu: "Intel Core i5",
+      gpu: "GTX 1060",
+      ram: 8,
+      storage: 70,
+    },
     recommended: {
       cpu: "Intel Core i7",
       gpu: "RTX 3060",
@@ -91,18 +111,14 @@ for (let i = 0; i < games.length; i++) {
     },
   });
 }
+
 await User.create({
   name: "Admin",
-  email: "admin@nexora.dev",
-  password: await bcrypt.hash("Admin@123", 10),
+  email: adminEmail,
+  password: await bcrypt.hash(adminPassword, 10),
   role: "admin",
 });
-await User.create({
-  name: "Player One",
-  email: "player@nexora.dev",
-  password: await bcrypt.hash("Player@123", 10),
-  role: "user",
-  achievements: ["Early Adopter"],
-});
+
 console.log("Seed complete");
+
 await mongoose.connection.close();
