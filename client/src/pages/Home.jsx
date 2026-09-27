@@ -9,6 +9,12 @@ import { useEffect, useState } from "react";
 import { api } from "../services/api";
 import GameCard from "../components/GameCard";
 
+function getFreshImageUrl(url, updatedAt) {
+  if (!url) return "";
+  const separator = url.includes("?") ? "&" : "?";
+  return `${url}${separator}v=${encodeURIComponent(updatedAt || Date.now())}`;
+}
+
 export default function Home() {
   const [games, setGames] = useState([]);
   const [time, setTime] = useState(4 * 3600 + 21 * 60 + 37);
@@ -18,7 +24,9 @@ export default function Home() {
   const [featuredVisible, setFeaturedVisible] = useState(true);
 
   useEffect(() => {
-    api.get("/games").then((r) => setGames(r.data));
+    api.get("/games", { params: { _t: Date.now() } }).then((r) =>
+      setGames(r.data)
+    );
 
     const t = setInterval(() => {
       setTime((x) => (x > 0 ? x - 1 : 0));
@@ -359,10 +367,10 @@ export default function Home() {
                   <div className="relative overflow-hidden rounded-2xl">
 
                     <img
-                      src={
-                        featuredGame?.banner ||
-                        featuredGame?.image
-                      }
+                      src={getFreshImageUrl(
+                        featuredGame?.banner || featuredGame?.image,
+                        featuredGame?.updatedAt
+                      )}
                       alt={
                         featuredGame?.title ||
                         "Featured Game"
