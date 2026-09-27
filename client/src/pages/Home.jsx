@@ -368,7 +368,7 @@ export default function Home() {
 
                     <img
                       src={getFreshImageUrl(
-                        featuredGame?.banner || featuredGame?.image,
+                        featuredGame?.image || featuredGame?.banner,
                         featuredGame?.updatedAt
                       )}
                       alt={
